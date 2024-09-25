@@ -1,6 +1,6 @@
 # InLineCoordinatesCoefficientSolver
 
-In-Line Coordinates Coefficient Solver workspace while implementing novel coefficient analysis technique.
+Dynamic In-Line Coordinates Coefficient Solver is a workspace for implementing new coefficient swapping technique of linear combinations of data points which are in conflict in their class label as plotted in Dynamic In-Line Coordinates [Kovalerchuk et al. 2018] [Williams and Kovalerchuk manuscript 2024].
 
 ## Demonstrative Screenshot
 
