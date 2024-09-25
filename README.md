@@ -46,4 +46,4 @@ python test.py
 
 ## License
 
-This project is licensed under the MIT License. See the `LICENSE` file for more details.
+This project is free to use for both personal and commercial uses as licensed under the MIT License. See the `LICENSE` file for full details.

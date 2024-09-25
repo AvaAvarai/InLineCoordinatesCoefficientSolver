@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.special import comb
 from matplotlib.colors import LinearSegmentedColormap
+import pandas as pd
 
 # Function to create Bezier curve
 def bezier_curve(points, num=200):
@@ -13,10 +14,15 @@ def bezier_curve(points, num=200):
         curve += np.outer(comb(N - 1, i) * (1 - t)**(N - 1 - i) * t**i, points[i])
     return curve
 
-# Generate random data points for two classes
-np.random.seed(0)
-# generate 3 samples of data points, with 4 features each, for 2 classes
-data = np.random.randn(2, 3, 4)
+# Load data from data.csv
+df = pd.read_csv('data.csv')
+
+# Separate data into two classes
+class1 = df[df['Class'] == 1].iloc[:, 2:].values
+class2 = df[df['Class'] == 2].iloc[:, 2:].values
+
+# Combine data into a single array
+data = np.array([class1, class2])
 
 # Print the data set
 print("Data set:")
