@@ -1,8 +1,4 @@
-# InLineCoordinatesCoefficientSolver
-
-In-Line Coordinates Coefficient Solver workspace while implementing novel coefficient analysis technique.
-
-## TASK for the CoefSwap "Coefficient Swapping" project
+# TASK for the CoefSwap "Coefficient Swapping" project
 
 We are interested in the following tasks:
 
