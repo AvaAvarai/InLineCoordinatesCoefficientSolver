@@ -29,3 +29,21 @@ We are interested in the following tasks:
 3. Replot the data, check if cases endpoint is swapped correctly.
 
 We have the scenario where we have a set of data points, and we want to find the coefficients for a linear combination that swaps two conflicted cases of either class in the data.
+
+## How to run the code
+
+1. Install the dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+2. Run the code:
+
+```bash
+python test.py
+```
+
+## License
+
+This project is licensed under the MIT License. See the `LICENSE` file for more details.
