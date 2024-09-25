@@ -18,6 +18,13 @@ np.random.seed(0)
 # generate 3 samples of data points, with 4 features each, for 2 classes
 data = np.random.randn(2, 3, 4)
 
+# Print the data set
+print("Data set:")
+for i in range(2):
+    print(f"Class {i+1}:")
+    for j in range(3):
+        print(f"  Sample {j+1}: {data[i, j]}")
+
 # Plot the data points on a 1D subspace (x-axis)
 plt.figure(figsize=(12, 6))
 
