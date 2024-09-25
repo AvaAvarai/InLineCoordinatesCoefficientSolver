@@ -7,17 +7,11 @@ In-Line Coordinates Coefficient Solver workspace while implementing novel coeffi
 First plotting version of the In-Line Coordinates Coefficient Solver.
 ![Demo 1](screenshots/demo1.png)
 
-Demo 1 Data set:  
+## Data Set Used
 
-Class 1:  
-    - Sample 1: [1.76405235 0.40015721 0.97873798 2.2408932 ]  
-    - Sample 2: [ 1.86755799 -0.97727788  0.95008842 -0.15135721]  
-    - Sample 3: [-0.10321885  0.4105985   0.14404357  1.45427351]  
+We are using artificial data set for exploratory analysis of the new coefficient analysis technique and to validate the technique in a simple scenario.
 
-Class 2:  
-    - Sample 1: [0.76103773 0.12167502 0.44386323 0.33367433]  
-    - Sample 2: [ 1.49407907 -0.20515826  0.3130677  -0.85409574]  
-    - Sample 3: [-2.55298982  0.6536186   0.8644362  -0.74216502]
+Data is loaded from `data.csv` and plotted on a 1D subspace (x-axis or y=0). Found and directly editted in `data.csv` to be used for testing.
 
 ## TASK for the CoefSwap "Coefficient Swapping" project
 
@@ -41,7 +35,7 @@ pip install -r requirements.txt
 2. Run the code:
 
 ```bash
-python test.py
+python main.py
 ```
 
 ## License
