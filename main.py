@@ -45,9 +45,9 @@ for i in range(2):  # For each class
     colors = cmap(np.linspace(0.2, 0.8, len(data[i])))  # Dynamically create shades based on number of samples
 
     for j in range(len(data[i])):  # For each sample in the class
-        cumulative_sum = np.cumsum(np.abs(data[i, j]))  # Use absolute values to ensure always increasing
+        cumulative_sum = np.concatenate(([0], np.cumsum(np.abs(data[i, j]))))  # Start at 0, then use absolute values
         y_position = 0  # All points on the x-axis (y=0)
-        scatter = plt.scatter(cumulative_sum, [y_position] * len(data[i, j]), c=[colors[j]], marker=markers[i], s=50)
+        scatter = plt.scatter(cumulative_sum, [y_position] * len(cumulative_sum), c=[colors[j]], marker=markers[i], s=50)
         
         # Label points with index in their case
         for k, x in enumerate(cumulative_sum):
@@ -56,10 +56,10 @@ for i in range(2):  # For each class
                          fontsize=8, color=colors[j])
         
         # Create Bezier curve between points of a single sample
-        points = np.column_stack((cumulative_sum, [y_position] * len(data[i, j])))
+        points = np.column_stack((cumulative_sum, [y_position] * len(cumulative_sum)))
         
         # Add control points to make curves arc slightly
-        for k in range(len(data[i, j]) - 1):  # segments between points
+        for k in range(len(cumulative_sum) - 1):  # segments between points
             x_start, x_end = points[k:k+2, 0]
             x_mid = (x_start + x_end) / 2
             y_control = 0.05 if i == 0 else -0.05  # Small arc up for class 1, down for class 2
