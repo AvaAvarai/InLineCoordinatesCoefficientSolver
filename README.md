@@ -2,6 +2,11 @@
 
 In-Line Coordinates Coefficient Solver workspace while implementing novel coefficient analysis technique.
 
+## Demonstrative Screenshot
+
+First plotting version of the In-Line Coordinates Coefficient Solver.
+![Demo 1](screenshots/demo1.png)
+
 ## TASK for the CoefSwap "Coefficient Swapping" project
 
 We are interested in the following tasks:
