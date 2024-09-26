@@ -49,9 +49,9 @@ for i, class_data in enumerate(data):  # For each class
         y_position = 0  # All points on the x-axis (y=0)
         scatter = plt.scatter(cumulative_sum, [y_position] * len(cumulative_sum), c=[colors[j]], marker=markers[i], s=50)
         
-        # Label points with index in their case
+        # Label points with index in their case (1-indexed)
         for k, x in enumerate(cumulative_sum):
-            plt.annotate(f'{j},{k}', (x, y_position), xytext=(0, 5), 
+            plt.annotate(f'{j+1},{k+1}', (x, y_position), xytext=(0, 5), 
                          textcoords='offset points', ha='center', va='bottom',
                          fontsize=8, color=colors[j])
         
