@@ -43,7 +43,7 @@ markers = ['o', 's']
 
 # Initial coefficients
 num_features = df.shape[1] - 2  # Subtract 2 for 'Class' and 'Sample' columns
-coefficients = np.ones(num_features)
+coefficients = np.ones(num_features) * 0.5  # Initialize coefficients to 0.5
 
 def update_plot(coef):
     ax.clear()
@@ -103,7 +103,7 @@ def update_plot(coef):
 
 # Create sliders
 slider_axes = [plt.axes([0.1, 0.05 + 0.03*i, 0.65, 0.03]) for i in range(num_features)]
-sliders = [Slider(ax, f'Feature {i+1}', 0.1, 2.0, valinit=1.0) for i, ax in enumerate(slider_axes)]
+sliders = [Slider(ax, f'Feature {i+1}', 0.0, 1.0, valinit=0.5) for i, ax in enumerate(slider_axes)]
 
 # Update function for sliders
 def update(val):
