@@ -17,19 +17,19 @@ def bezier_curve(points, num=200):
 # Load data from data.csv
 df = pd.read_csv('data.csv')
 
-# Separate data into two classes
+# Separate data into two classes (now handling imbalanced classes)
 class1 = df[df['Class'] == 1].iloc[:, 2:].values
 class2 = df[df['Class'] == 2].iloc[:, 2:].values
 
 # Combine data into a single array
-data = np.array([class1, class2])
+data = [class1, class2]
 
 # Print the data set
 print("Data set:")
-for i in range(2):
+for i, class_data in enumerate(data):
     print(f"Class {i+1}:")
-    for j in range(len(data[i])):
-        print(f"  Sample {j+1}: {data[i, j]}")
+    for j, sample in enumerate(class_data):
+        print(f"  Sample {j+1}: {sample}")
 
 # Dynamically determine figure size based on data
 x_max = np.max([np.sum(np.abs(sample)) for class_data in data for sample in class_data])
@@ -39,13 +39,13 @@ plt.figure(figsize=(12, max(6, y_size)))
 base_colors = ['red', 'blue']
 markers = ['o', 's']
 
-for i in range(2):  # For each class
+for i, class_data in enumerate(data):  # For each class
     # Create a color gradient for each class
     cmap = LinearSegmentedColormap.from_list(f"custom_{base_colors[i]}", [base_colors[i], 'white'])
-    colors = cmap(np.linspace(0.2, 0.8, len(data[i])))  # Dynamically create shades based on number of samples
+    colors = cmap(np.linspace(0.2, 0.8, len(class_data)))  # Dynamically create shades based on number of samples
 
-    for j in range(len(data[i])):  # For each sample in the class
-        cumulative_sum = np.concatenate(([0], np.cumsum(np.abs(data[i, j]))))  # Start at 0, then use absolute values
+    for j, sample in enumerate(class_data):  # For each sample in the class
+        cumulative_sum = np.concatenate(([0], np.cumsum(np.abs(sample))))  # Start at 0, then use absolute values
         y_position = 0  # All points on the x-axis (y=0)
         scatter = plt.scatter(cumulative_sum, [y_position] * len(cumulative_sum), c=[colors[j]], marker=markers[i], s=50)
         

@@ -4,14 +4,14 @@ Dynamic In-Line Coordinates Coefficient Solver is a workspace for implementing n
 
 ## Demonstrative Screenshot
 
-First plotting version of the In-Line Coordinates Coefficient Solver.
+Current version of the In-Line Coordinates Coefficient Solver.
 ![Demo 1](screenshots/demo1.png)
 
 ## Data Set Used
 
 We are using artificial data set for exploratory analysis of the new coefficient analysis technique and to validate the technique in a simple scenario.
 
-Data is loaded from `data.csv` and plotted on a 1D subspace (x-axis or y=0). Found and directly editted in `data.csv` to be used for testing.
+Data is loaded from `data.csv` and plotted on the x-axis at y=0. Edit data directly in the `data.csv` file to test different scenarios.
 
 ## TASK for the CoefSwap "Coefficient Swapping" project
 
@@ -28,15 +28,15 @@ We have the scenario where we have a set of data points, and we want to find the
 
 1. Install the dependencies:
 
-```bash
-pip install -r requirements.txt
-```
+    ```bash
+    pip install -r requirements.txt
+    ```
 
 2. Run the code:
 
-```bash
-python main.py
-```
+    ```bash
+    python main.py
+    ```
 
 ## License
 
