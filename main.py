@@ -1,4 +1,3 @@
-# write a demo for the coefswap project
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.special import comb
@@ -15,22 +14,14 @@ def bezier_curve(points, num=200):
         curve += np.outer(comb(N - 1, i) * (1 - t)**(N - 1 - i) * t**i, points[i])
     return curve
 
-# Load data from data.csv
-df = pd.read_csv('data.csv')
+df = pd.read_csv('data.csv')  # Load your actual CSV file
 
-# Separate data into two classes (now handling imbalanced classes)
+# Separate data into two classes
 class1 = df[df['Class'] == 1].iloc[:, 2:].values
 class2 = df[df['Class'] == 2].iloc[:, 2:].values
 
 # Combine data into a single array
 data = [class1, class2]
-
-# Print the data set
-print("Data set:")
-for i, class_data in enumerate(data):
-    print(f"Class {i+1}:")
-    for j, sample in enumerate(class_data):
-        print(f"  Sample {j+1}: {sample}")
 
 # Dynamically determine figure size based on data
 x_max = np.max([np.sum(np.abs(sample)) for class_data in data for sample in class_data])
@@ -47,6 +38,7 @@ coefficients = np.ones(num_features) * 0.5  # Initialize coefficients to 0.5
 
 def update_plot(coef):
     ax.clear()
+    all_endpoints = []
     for i, class_data in enumerate(data):  # For each class
         # Create a color gradient for each class
         cmap = LinearSegmentedColormap.from_list(f"custom_{base_colors[i]}", [base_colors[i], 'white'])
@@ -56,18 +48,11 @@ def update_plot(coef):
             modified_sample = sample * coef
             cumulative_sum = np.concatenate(([0], np.cumsum(np.abs(modified_sample))))  # Start at 0, then use absolute values
             y_position = 0  # All points on the x-axis (y=0)
-            scatter = ax.scatter(cumulative_sum, [y_position] * len(cumulative_sum), c=[colors[j]], marker=markers[i], s=50)
-            
-            # Label points with index in their case (1-indexed)
-            for k, x in enumerate(cumulative_sum):
-                ax.annotate(f'{j+1},{k+1}', (x, y_position), xytext=(0, 5), 
-                             textcoords='offset points', ha='center', va='bottom',
-                             fontsize=8, color=colors[j])
+            ax.scatter(cumulative_sum, [y_position] * len(cumulative_sum), c=[colors[j]], marker=markers[i], s=50)
             
             # Create Bezier curve between points of a single sample
             points = np.column_stack((cumulative_sum, [y_position] * len(cumulative_sum)))
             
-            # Add control points to make curves arc slightly
             for k in range(len(cumulative_sum) - 1):  # segments between points
                 x_start, x_end = points[k:k+2, 0]
                 x_mid = (x_start + x_end) / 2
@@ -81,6 +66,39 @@ def update_plot(coef):
                 
                 curve = bezier_curve(control_points)
                 ax.plot(curve[:, 0], curve[:, 1], c=colors[j], alpha=0.5)
+            
+            # Store endpoint information (last cumulative sum value for each sample)
+            all_endpoints.append((cumulative_sum[-1], i, j))
+
+    # Sort endpoints by x-coordinate
+    all_endpoints.sort(key=lambda x: x[0])
+
+    # Get the first and last occurrence of each class
+    first_class1 = next((idx for idx, val in enumerate(all_endpoints) if val[1] == 0), None)
+    last_class1 = len(all_endpoints) - 1 - next((idx for idx, val in enumerate(reversed(all_endpoints)) if val[1] == 0), None)
+
+    first_class2 = next((idx for idx, val in enumerate(all_endpoints) if val[1] == 1), None)
+    last_class2 = len(all_endpoints) - 1 - next((idx for idx, val in enumerate(reversed(all_endpoints)) if val[1] == 1), None)
+
+    # Conflict detection logic: points from class 1 inside class 2 bounds and vice versa
+    conflicts = []
+    for idx, (x_value, class_idx, sample_idx) in enumerate(all_endpoints):
+        if class_idx == 0 and (idx > first_class2 and idx < last_class2):  # Class 1 inside class 2's cluster
+            conflicts.append((x_value, class_idx, sample_idx))
+        elif class_idx == 1 and (idx > first_class1 and idx < last_class1):  # Class 2 inside class 1's cluster
+            conflicts.append((x_value, class_idx, sample_idx))
+        
+        # Also check for isolation (points not next to their own class)
+        if class_idx == 0 and not (idx > first_class1 and idx < last_class1):  # Class 1 isolated
+            if (idx == 0 or all_endpoints[idx - 1][1] != 0) and (idx == len(all_endpoints) - 1 or all_endpoints[idx + 1][1] != 0):
+                conflicts.append((x_value, class_idx, sample_idx))
+        elif class_idx == 1 and not (idx > first_class2 and idx < last_class2):  # Class 2 isolated
+            if (idx == 0 or all_endpoints[idx - 1][1] != 1) and (idx == len(all_endpoints) - 1 or all_endpoints[idx + 1][1] != 1):
+                conflicts.append((x_value, class_idx, sample_idx))
+
+    # Highlight conflicting endpoints
+    for endpoint in conflicts:
+        ax.scatter(endpoint[0], 0, c='yellow', s=100, zorder=5, edgecolors='black')
 
     # Draw line at y=0
     ax.axhline(y=0, color='black', linestyle='--', linewidth=1)
@@ -94,7 +112,9 @@ def update_plot(coef):
     legend_elements = [plt.Line2D([0], [0], marker='o', color='w', label='Class 1',
                                   markerfacecolor='red', markersize=10),
                        plt.Line2D([0], [0], marker='s', color='w', label='Class 2',
-                                  markerfacecolor='blue', markersize=10)]
+                                  markerfacecolor='blue', markersize=10),
+                       plt.Line2D([0], [0], marker='o', color='w', label='Conflict',
+                                  markerfacecolor='yellow', markersize=5, markeredgecolor='black')]
     ax.legend(handles=legend_elements)
 
     ax.grid(True, alpha=0.3)
