@@ -4,6 +4,9 @@ from scipy.special import comb
 from matplotlib.colors import LinearSegmentedColormap
 import pandas as pd
 from matplotlib.widgets import Slider
+import tkinter as tk
+from tkinter import filedialog
+import os
 
 # Function to create Bezier curve
 def bezier_curve(points, num=200):
@@ -14,7 +17,23 @@ def bezier_curve(points, num=200):
         curve += np.outer(comb(N - 1, i) * (1 - t)**(N - 1 - i) * t**i, points[i])
     return curve
 
-df = pd.read_csv('data.csv')  # Load your actual CSV file
+# Function to open file dialog and select CSV file
+def select_csv_file():
+    root = tk.Tk()
+    root.withdraw()  # Hide the main window
+    file_path = filedialog.askopenfilename(initialdir="./data", title="Select CSV file",
+                                           filetypes=(("CSV files", "*.csv"), ("all files", "*.*")))
+    root.destroy()
+    return file_path
+
+# Get the CSV file path
+csv_file_path = select_csv_file()
+
+if not csv_file_path:
+    print("No file selected. Exiting.")
+    exit()
+
+df = pd.read_csv(csv_file_path)  # Load the selected CSV file
 
 # Separate data into two classes
 class1 = df[df['Class'] == 1].iloc[:, 2:].values
@@ -104,7 +123,7 @@ def update_plot(coef):
     ax.axhline(y=0, color='black', linestyle='--', linewidth=1)
 
     ax.set_yticks([])  # Remove y-axis ticks as we're only using y=0
-    ax.set_title('In-Line Coordinate Plot of generated samples')
+    ax.set_title(f'In-Line Coordinate Plot of {os.path.basename(csv_file_path)}')
     ax.set_xlabel('Cumulative Value')
     ax.set_ylabel('Samples')
 
