@@ -35,9 +35,15 @@ if not csv_file_path:
 
 df = pd.read_csv(csv_file_path)  # Load the selected CSV file
 
+# Get unique class names (assuming binary scenario)
+class_names = df['Class'].unique()
+if len(class_names) != 2:
+    print("Error: This script is designed for binary classification. Please use a dataset with exactly two classes.")
+    exit()
+
 # Separate data into two classes
-class1 = df[df['Class'] == 1].iloc[:, 2:].values
-class2 = df[df['Class'] == 2].iloc[:, 2:].values
+class1 = df[df['Class'] == class_names[0]].iloc[:, 2:].values
+class2 = df[df['Class'] == class_names[1]].iloc[:, 2:].values
 
 # Combine data into a single array
 data = [class1, class2]
@@ -128,9 +134,9 @@ def update_plot(coef):
     ax.set_ylabel('Samples')
 
     # Create custom legend
-    legend_elements = [plt.Line2D([0], [0], marker='o', color='w', label='Class 1',
+    legend_elements = [plt.Line2D([0], [0], marker='o', color='w', label=f'{class_names[0]}',
                                   markerfacecolor='red', markersize=10),
-                       plt.Line2D([0], [0], marker='s', color='w', label='Class 2',
+                       plt.Line2D([0], [0], marker='s', color='w', label=f'{class_names[1]}',
                                   markerfacecolor='blue', markersize=10),
                        plt.Line2D([0], [0], marker='o', color='w', label='Conflict',
                                   markerfacecolor='yellow', markersize=5, markeredgecolor='black')]
