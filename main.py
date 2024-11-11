@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from scipy.special import comb
 from matplotlib.colors import LinearSegmentedColormap
 import pandas as pd
-from matplotlib.widgets import Slider, Button
+from matplotlib.widgets import Slider, Button, CheckButtons
 import tkinter as tk
 from tkinter import filedialog
 import os
@@ -155,9 +155,10 @@ def solve_separation():
 
     # Adjust the coefficient for the largest differing attribute to ensure separation
     # Ensure the coefficient does not become 0
-    coefficients[largest_diff_idx] -= adjustment_needed
-    if coefficients[largest_diff_idx] == 0:
-        coefficients[largest_diff_idx] = 0.01  # Set to a small non-zero value
+    if allow_negative_coefficients:
+        coefficients[largest_diff_idx] -= adjustment_needed
+    else:
+        coefficients[largest_diff_idx] = max(0, coefficients[largest_diff_idx] - adjustment_needed)
 
     for slider, coef in zip(sliders, coefficients):
         slider.set_val(coef)
@@ -179,6 +180,25 @@ sliders = [Slider(ax, f'Feature {i+1}', -5.0, 5.0, valinit=1.0) for i, ax in enu
 solve_button_ax = plt.axes([0.8, 0.05, 0.15, 0.03])
 solve_button = Button(solve_button_ax, 'Solve')
 solve_button.on_clicked(lambda x: solve_separation())
+
+# Toggle for allowing negative coefficients
+allow_negative_coefficients = True
+def toggle_negative_coefficients(label):
+    global allow_negative_coefficients
+    allow_negative_coefficients = not allow_negative_coefficients
+    for slider in sliders:
+        if allow_negative_coefficients:
+            slider.valmin = -5.0
+            slider.valmax = 5.0
+        else:
+            slider.valmin = 0.0
+            slider.valmax = 5.0
+    print(f"Allowing negative coefficients: {allow_negative_coefficients}")
+
+# Check button for toggling negative coefficients
+checkbox_ax = plt.axes([0.8, 0.1, 0.15, 0.03])
+checkbox = CheckButtons(checkbox_ax, ['Allow Neg Coef'], [allow_negative_coefficients])
+checkbox.on_clicked(toggle_negative_coefficients)
 
 for slider in sliders:
     slider.on_changed(lambda val: update_plot(np.array([slider.val for slider in sliders])))
