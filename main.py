@@ -33,15 +33,21 @@ if not csv_file_path:
     exit()
 
 df = pd.read_csv(csv_file_path)
-class_col = df.columns.get_loc('Class')
-class_names = df['Class'].unique()
+# Parse 'Class' column to lowercase to handle different cases
+class_column = df.columns[df.columns.str.lower() == 'class']
+if not class_column.any():
+    print("Error: No 'Class' column found in the CSV file.")
+    exit()
+
+class_col = df.columns.get_loc(class_column[0])
+class_names = df[class_column[0]].unique()
 if len(class_names) != 2:
     print("Error: This script is designed for binary classification.")
     exit()
 
 # Separate data into two classes, dropping the Class column
-class1 = df[df['Class'] == class_names[0]].drop('Class', axis=1).values
-class2 = df[df['Class'] == class_names[1]].drop('Class', axis=1).values
+class1 = df[df[class_column[0]] == class_names[0]].drop(class_column[0], axis=1).values
+class2 = df[df[class_column[0]] == class_names[1]].drop(class_column[0], axis=1).values
 data = [class1, class2]
 
 # Initial plot setup
