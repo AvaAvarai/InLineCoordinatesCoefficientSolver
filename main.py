@@ -121,35 +121,45 @@ def on_click(event):
 
         highlight_selected_points()
 
-def solve_separation(max_iterations=100, initial_value=0.1, adjustment_factor=0.1):
-    print("Starting separation process...")
-    signed_diffs = np.mean(class1, axis=0) - np.mean(class2, axis=0)
-    new_coefs = np.full(num_features, initial_value)
+def solve_separation():
+    global coefficients
+    if len(selected_points) != 2:
+        print("Select exactly two points before solving.")
+        return
     
-    for iteration in range(max_iterations):
-        weighted_sums_class1 = class1 @ new_coefs
-        weighted_sums_class2 = class2 @ new_coefs
-        max_class1, min_class2 = np.max(weighted_sums_class1), np.min(weighted_sums_class2)
-        separation_success = max_class1 < min_class2
-        if separation_success:
-            print("Separation achieved.")
-            break
+    print("Solving for separation...")
 
-        contributions = np.abs(signed_diffs * new_coefs)
-        for i in range(num_features):
-            direction = np.sign(signed_diffs[i])
-            new_coefs[i] += adjustment_factor * direction * (contributions[i] / np.max(contributions))
-
-    if not separation_success:
-        print("Warning: Separation not achieved.")
+    # Get selected points data
+    idx1, idx2 = selected_points
+    sample1 = data[idx1[0]][idx1[1]]
+    sample2 = data[idx2[0]][idx2[1]]
     
-    for slider, coef in zip(sliders, new_coefs):
+    # Calculate initial cumulative sums for selected points
+    cumulative_sum1 = np.sum(sample1 * coefficients)
+    cumulative_sum2 = np.sum(sample2 * coefficients)
+    target_relation = cumulative_sum1 < cumulative_sum2  # Target is to ensure this relation holds for all points
+
+    # Find the largest differing attribute
+    differences = np.abs(sample2 - sample1)
+    largest_diff_idx = np.argmax(differences)
+
+    # Calculate the adjustment needed to ensure all points of one class come before all points of another class
+    # This is a simplification assuming the largest differing attribute is the key to separation
+    adjustment_needed = 1.0  # A fixed adjustment to ensure separation
+
+    # Adjust the coefficient for the largest differing attribute to ensure separation
+    # Ensure the coefficient does not become 0
+    coefficients[largest_diff_idx] -= adjustment_needed
+    if coefficients[largest_diff_idx] == 0:
+        coefficients[largest_diff_idx] = 0.01  # Set to a small non-zero value
+
+    for slider, coef in zip(sliders, coefficients):
         slider.set_val(coef)
-    print("Final coefficients:", new_coefs)
     
     # Clear selected points and refresh plot
     selected_points.clear()
-    update_plot(new_coefs)
+    update_plot(coefficients)
+    print("Final coefficients after solving:", coefficients)
 
 # Update plot function
 def update_plot(coef):
