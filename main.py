@@ -70,14 +70,14 @@ def highlight_selected_points():
 
         for j, sample in enumerate(class_data):
             modified_sample = sample * coefficients
-            cumulative_sum = np.concatenate(([0], np.cumsum(np.abs(modified_sample))))
+            cumulative_sum = np.concatenate(([0], np.cumsum(modified_sample)))
             y_position = 0
 
             # Set endpoint color based on selection status
             endpoint_color = 'green' if (i, j) in selected_points else base_color
 
-            # Draw points and endpoint
-            ax.scatter(cumulative_sum[:-1], [y_position] * (len(cumulative_sum) - 1), color=colors[j], s=50)
+            # Draw points and endpoint - non-endpoints much smaller now
+            ax.scatter(cumulative_sum[:-1], [y_position] * (len(cumulative_sum) - 1), color=colors[j], s=10)  # Reduced from 50 to 10
             ax.scatter(cumulative_sum[-1], y_position, color=endpoint_color, s=100)
 
             # Draw Bezier curve for each segment
@@ -109,7 +109,7 @@ def on_click(event):
         for i, class_data in enumerate(data):
             for j, sample in enumerate(class_data):
                 modified_sample = sample * coefficients
-                cumulative_sum = np.concatenate(([0], np.cumsum(np.abs(modified_sample))))
+                cumulative_sum = np.concatenate(([0], np.cumsum(modified_sample)))
                 x, y = cumulative_sum[-1], 0
                 dist = np.hypot(event.xdata - x, event.ydata - y)
                 
@@ -188,11 +188,11 @@ def toggle_negative_coefficients(label):
     allow_negative_coefficients = not allow_negative_coefficients
     for slider in sliders:
         if allow_negative_coefficients:
-            slider.valmin = -5.0
-            slider.valmax = 5.0
+            slider.valmin = -10.0
+            slider.valmax = 10.0
         else:
             slider.valmin = 0.0
-            slider.valmax = 5.0
+            slider.valmax = 10.0
     print(f"Allowing negative coefficients: {allow_negative_coefficients}")
 
 # Check button for toggling negative coefficients
