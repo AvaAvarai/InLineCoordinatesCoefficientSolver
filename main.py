@@ -7,6 +7,8 @@ from matplotlib.widgets import Slider, Button, TextBox, CheckButtons
 import tkinter as tk
 from tkinter import filedialog
 import os
+import threading
+import queue
 
 # Function to create Bezier curve
 def bezier_curve(points, num=200):
@@ -65,6 +67,9 @@ plt.subplots_adjust(bottom=0.5)
 selected_points = []
 draw_order = [0, 1]  # Default order: class1 then class2
 
+# Create a queue for thread-safe communication
+plot_queue = queue.Queue()
+
 def highlight_selected_points():
     ax.clear()
     for order_idx in draw_order:  # Draw classes in current order
@@ -105,19 +110,18 @@ def update_slider(val, idx):
     global coefficients
     coefficients[idx] = sliders[idx].val
     text_boxes[idx].set_val(f"{coefficients[idx]:.4f}")
-    highlight_selected_points()
+    plot_queue.put(highlight_selected_points)
 
 def update_text(val, idx):
     global coefficients
     try:
         coefficients[idx] = float(val)
         sliders[idx].set_val(coefficients[idx])
-        highlight_selected_points()
+        plot_queue.put(highlight_selected_points)
     except ValueError:
         text_boxes[idx].set_val(f"{coefficients[idx]:.4f}")
 
-def solve_separation():
-    global coefficients
+def solve_separation_thread():
     if len(selected_points) != 2:
         print("Select exactly two points before solving.")
         return
@@ -160,12 +164,17 @@ def solve_separation():
         sliders[i].set_val(coefficients[i])
         text_boxes[i].set_val(f"{coefficients[i]:.4f}")
 
-        # Refresh plot after each coefficient adjustment
-        highlight_selected_points()
+        # Queue plot update
+        plot_queue.put(highlight_selected_points)
 
     # Clear selected points
     selected_points.clear()
     print("Final coefficients after solving:", [f"{c:.4f}" for c in coefficients])
+
+def solve_separation():
+    thread = threading.Thread(target=solve_separation_thread)
+    thread.daemon = True
+    thread.start()
 
 def toggle_negative_coefficients(label):
     global allow_negative_coefficients
@@ -173,14 +182,14 @@ def toggle_negative_coefficients(label):
     for slider in sliders:
         slider.valmin = -5.0 if allow_negative_coefficients else 0.0
         slider.ax.set_xlim(slider.valmin, slider.valmax)
-    highlight_selected_points()
+    plot_queue.put(highlight_selected_points)
 
 def bring_to_front(class_idx):
     global draw_order
     if class_idx in draw_order:
         draw_order.remove(class_idx)
         draw_order.append(class_idx)  # Add to end to draw last (on top)
-        highlight_selected_points()
+        plot_queue.put(highlight_selected_points)
 
 def on_click(event):
     if event.inaxes == ax:
@@ -201,7 +210,20 @@ def on_click(event):
             selected_points.append(selected_idx)
             if len(selected_points) > 2:
                 selected_points.pop(0)
-            highlight_selected_points()
+            plot_queue.put(highlight_selected_points)
+
+def update_plot():
+    while True:
+        try:
+            # Get the next plotting function from queue without blocking
+            plot_func = plot_queue.get_nowait()
+            plot_func()
+        except queue.Empty:
+            break
+    # Schedule the next update
+    plt.pause(0.1)
+    fig.canvas.draw_idle()
+    fig.canvas.start_event_loop(0.1)
 
 # Create sliders and text boxes
 slider_axes = [plt.axes([0.1, 0.4 - 0.03 * i, 0.4, 0.02]) for i in range(num_features)]
@@ -235,4 +257,10 @@ class2_button.on_clicked(lambda _: bring_to_front(1))
 
 fig.canvas.mpl_connect('button_press_event', on_click)
 highlight_selected_points()
+
+# Set up timer for plot updates
+timer = fig.canvas.new_timer(interval=100)
+timer.add_callback(update_plot)
+timer.start()
+
 plt.show()
