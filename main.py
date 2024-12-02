@@ -104,7 +104,7 @@ def highlight_selected_points():
 def update_slider(val, idx):
     global coefficients
     coefficients[idx] = sliders[idx].val
-    text_boxes[idx].set_val(f"{coefficients[idx]:.2f}")
+    text_boxes[idx].set_val(f"{coefficients[idx]:.4f}")
     highlight_selected_points()
 
 def update_text(val, idx):
@@ -114,7 +114,7 @@ def update_text(val, idx):
         sliders[idx].set_val(coefficients[idx])
         highlight_selected_points()
     except ValueError:
-        text_boxes[idx].set_val(f"{coefficients[idx]:.2f}")
+        text_boxes[idx].set_val(f"{coefficients[idx]:.4f}")
 
 def solve_separation():
     global coefficients
@@ -158,14 +158,14 @@ def solve_separation():
 
         # Update sliders and text boxes to reflect new coefficients
         sliders[i].set_val(coefficients[i])
-        text_boxes[i].set_val(f"{coefficients[i]:.2f}")
+        text_boxes[i].set_val(f"{coefficients[i]:.4f}")
 
         # Refresh plot after each coefficient adjustment
         highlight_selected_points()
 
     # Clear selected points
     selected_points.clear()
-    print("Final coefficients after solving:", coefficients)
+    print("Final coefficients after solving:", [f"{c:.4f}" for c in coefficients])
 
 def toggle_negative_coefficients(label):
     global allow_negative_coefficients
@@ -208,7 +208,7 @@ slider_axes = [plt.axes([0.1, 0.4 - 0.03 * i, 0.4, 0.02]) for i in range(num_fea
 sliders = [Slider(ax, feature_columns[i], -5.0, 5.0, valinit=1.0) for i, ax in enumerate(slider_axes)]
 
 text_box_axes = [plt.axes([0.55, 0.4 - 0.03 * i, 0.15, 0.02]) for i in range(num_features)]
-text_boxes = [TextBox(ax, '', initial=f"{coefficients[i]:.2f}") for i, ax in enumerate(text_box_axes)]
+text_boxes = [TextBox(ax, '', initial=f"{coefficients[i]:.4f}") for i, ax in enumerate(text_box_axes)]
 
 # Link sliders and text boxes
 for i in range(num_features):
