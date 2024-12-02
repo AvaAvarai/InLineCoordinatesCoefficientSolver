@@ -33,19 +33,21 @@ if not csv_file_path:
     exit()
 
 df = pd.read_csv(csv_file_path)
+
+# Find class column case-insensitively and separate it from features
 class_column = df.columns[df.columns.str.lower() == 'class']
 if not class_column.any():
     print("Error: No 'Class' column found in the CSV file.")
     exit()
+
+# Get feature columns (excluding class column)
+feature_columns = df.columns[df.columns.str.lower() != 'class'].tolist()
 
 class_col = df.columns.get_loc(class_column[0])
 class_names = df[class_column[0]].unique()
 if len(class_names) != 2:
     print("Error: This script is designed for binary classification.")
     exit()
-
-# Get feature columns (all columns except class)
-feature_columns = [col for col in df.columns if col.lower() != 'class']
 
 # Separate data into two classes, using only feature columns
 class1 = df[df[class_column[0]] == class_names[0]][feature_columns].values
