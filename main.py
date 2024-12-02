@@ -201,6 +201,20 @@ def clear_selection():
     # redraw the plot
     highlight_selected_points()
 
+def auto_select_extremes():
+    global selected_points
+    selected_points.clear()
+    
+    # Find rightmost point of class 0 and leftmost point of class 1
+    class0_sums = [np.sum(np.abs(sample * coefficients)) for sample in data[0]]
+    class1_sums = [np.sum(np.abs(sample * coefficients)) for sample in data[1]]
+    
+    rightmost_class0_idx = np.argmax(class0_sums)
+    leftmost_class1_idx = np.argmin(class1_sums)
+    
+    selected_points.extend([(0, rightmost_class0_idx), (1, leftmost_class1_idx)])
+    plot_queue.put(highlight_selected_points)
+
 def on_click(event):
     if event.inaxes == ax:
         min_dist = float('inf')
@@ -269,6 +283,11 @@ class2_button.on_clicked(lambda _: bring_to_front(1))
 clear_button_ax = plt.axes([0.8, 0.25, 0.15, 0.03])
 clear_button = Button(clear_button_ax, 'Clear Selection')
 clear_button.on_clicked(lambda _: clear_selection())
+
+# Add auto-select extremes button
+auto_select_button_ax = plt.axes([0.8, 0.3, 0.15, 0.03])
+auto_select_button = Button(auto_select_button_ax, 'Auto-Select Extremes')
+auto_select_button.on_clicked(lambda _: auto_select_extremes())
 
 fig.canvas.mpl_connect('button_press_event', on_click)
 highlight_selected_points()
