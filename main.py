@@ -137,10 +137,13 @@ def solve_separation_thread():
     wsk_a = np.sum(coefficients * sample1)
     wsk_b = np.sum(coefficients * sample2)
 
-    # If already separated, no adjustment is needed
-    if wsk_a < wsk_b:
-        print("Samples already satisfy WSK(a) < WSK(b). No adjustment needed.")
-        return
+    # Check current relation and solve to flip it
+    relation = "WSK(a) < WSK(b)" if wsk_a < wsk_b else "WSK(a) > WSK(b)"
+    print(f"Current relation: {relation}")
+    
+    # If class1 point selected first, we want wsk_a < wsk_b
+    # If class2 point selected first, we want wsk_a > wsk_b
+    desired_relation = wsk_a < wsk_b if idx1[0] == 0 else wsk_a > wsk_b
 
     # Compute difference vector
     diff = sample2 - sample1
@@ -190,6 +193,13 @@ def bring_to_front(class_idx):
         draw_order.remove(class_idx)
         draw_order.append(class_idx)  # Add to end to draw last (on top)
         plot_queue.put(highlight_selected_points)
+
+def clear_selection():
+    global selected_points
+    selected_points.clear()
+    plot_queue.put(highlight_selected_points)
+    # redraw the plot
+    highlight_selected_points()
 
 def on_click(event):
     if event.inaxes == ax:
@@ -254,6 +264,11 @@ class1_button = Button(class1_button_ax, f'Bring {class_names[0]} to front')
 class2_button = Button(class2_button_ax, f'Bring {class_names[1]} to front')
 class1_button.on_clicked(lambda _: bring_to_front(0))
 class2_button.on_clicked(lambda _: bring_to_front(1))
+
+# Add clear selection button
+clear_button_ax = plt.axes([0.8, 0.25, 0.15, 0.03])
+clear_button = Button(clear_button_ax, 'Clear Selection')
+clear_button.on_clicked(lambda _: clear_selection())
 
 fig.canvas.mpl_connect('button_press_event', on_click)
 highlight_selected_points()
